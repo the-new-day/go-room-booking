@@ -1,27 +1,55 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"log"
 	"log/slog"
 	"os"
+
+	"github.com/internships-backend/test-backend-the-new-day/internal/config"
+	"github.com/internships-backend/test-backend-the-new-day/pkg/postgres"
 )
 
 const (
-	LogLevelDebug = "debug"
-	LogLevelInfo  = "info"
+	logLevelDebug   = "debug"
+	logLevelInfo    = "info"
+	logLevelDiscard = "discard"
 )
 
-func setupLogger(level string) (*slog.Logger, error) {
+const defaultConfigPath = "./config/config.yaml"
+
+func loadConfig() *config.Config {
+	configPath := flag.String("config", defaultConfigPath, "Path to the config file")
+
+	cfg, err := config.NewConfig(*configPath)
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	return cfg
+}
+
+func setupLogger(level string) *slog.Logger {
 	var logger *slog.Logger
 
 	switch level {
-	case LogLevelDebug:
-		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case LogLevelInfo:
-		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	case logLevelDebug:
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	case logLevelInfo:
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	case logLevelDiscard:
+		logger = slog.New(slog.DiscardHandler)
 	default:
-		return nil, fmt.Errorf("login setup failed: insupported level %q", level)
+		log.Fatalf("logger setup failed: unsupported level %q", level)
 	}
 
-	return logger, nil
+	return logger
+}
+
+func setupDatabase(dsn string, maxPoolSize int) *postgres.Postgres {
+	pg, err := postgres.New(dsn, postgres.MaxPoolSize(maxPoolSize))
+	if err != nil {
+		log.Fatalf("database setup failed: %v", err)
+	}
+	return pg
 }

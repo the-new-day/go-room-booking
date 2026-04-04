@@ -1,14 +1,31 @@
 package main
 
 import (
-	"flag"
-
-	"github.com/internships-backend/test-backend-the-new-day/internal/app"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
-const DefaultConfigPath = "./config/config.yaml"
-
 func main() {
-	configPath := flag.String("config", DefaultConfigPath, "Path to the config file")
-	app.Run(*configPath)
+	cfg := loadConfig()
+
+	logger := setupLogger(cfg.Log.Level)
+
+	logger.Info("starting server")
+	logger.Debug("debug messages are enabled")
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	logger.Info("connecting to Postgres")
+	db := setupDatabase(cfg.Postgres.DSN(), cfg.Postgres.MaxPoolSize)
+
+	<-interrupt
+	logger.Info("stopping server")
+
+	logger.Info("server stopped")
+
+	logger.Info("closing Postgres")
+	db.Close()
+	logger.Info("Postgres closed")
 }
