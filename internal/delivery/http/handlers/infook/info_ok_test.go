@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/api"
 	"github.com/stretchr/testify/require"
 )
 
@@ -47,11 +46,11 @@ func TestInfoOkHandler(t *testing.T) {
 			handler := New()
 			handler.ServeHTTP(rr, r)
 
-			var resp api.Response
+			var resp any
 			require.NoError(t, json.NewDecoder(rr.Body).Decode(&resp))
 
 			require.Equal(t, http.StatusOK, rr.Code)
-			require.Equal(t, resp.Status, api.StatusOK)
+			require.Zero(t, resp)
 		})
 	}
 }

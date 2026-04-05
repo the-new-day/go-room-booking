@@ -13,12 +13,12 @@ func RoleMiddleware(role entity.UserRole) func(http.Handler) http.Handler {
 			currentRole, ok := r.Context().Value(RoleKey).(string)
 
 			if !ok || currentRole == "" {
-				api.SendUnauthorized(w, r, api.Error("unauthorized"))
+				api.SendUnauthorized(w, r, "unauthorized")
 				return
 			}
 
 			if currentRole != string(role) {
-				api.SendForbidden(w, r, api.Error("no permission"))
+				api.SendForbidden(w, r, "no permission")
 				return
 			}
 

@@ -9,6 +9,7 @@ import (
 	"github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/handlers/dummylogin"
 	"github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/handlers/infook"
 	mw "github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/middleware"
+	"github.com/internships-backend/test-backend-the-new-day/internal/domain/entity"
 )
 
 type Router struct {
@@ -25,6 +26,23 @@ func NewRouter(logger *slog.Logger, jwtManager *auth.JwtManager) *Router {
 
 	r.Get("/_info", infook.New())
 	r.Post("/dummyLogin", dummylogin.New(logger, jwtManager))
+
+	// Group requiring authorization (any role)
+	r.Group(func(r chi.Router) {
+		r.Use(mw.AuthMiddleware(logger, jwtManager))
+	})
+
+	// Admin only endpoints
+	r.Group(func(r chi.Router) {
+		r.Use(mw.AuthMiddleware(logger, jwtManager))
+		r.Use(mw.RoleMiddleware(entity.RoleAdmin))
+	})
+
+	// User only endpoints
+	r.Group(func(r chi.Router) {
+		r.Use(mw.AuthMiddleware(logger, jwtManager))
+		r.Use(mw.RoleMiddleware(entity.RoleUser))
+	})
 
 	return &Router{r}
 }

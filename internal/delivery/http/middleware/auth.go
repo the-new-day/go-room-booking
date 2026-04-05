@@ -22,19 +22,19 @@ func AuthMiddleware(logger *slog.Logger, jwtManager *auth.JwtManager) func(http.
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				api.SendUnauthorized(w, r, api.Error("no Authorization header present"))
+				api.SendUnauthorized(w, r, "no Authorization header present")
 				return
 			}
 
 			parts := strings.SplitN(authHeader, " ", 2)
 			if len(parts) != 2 || parts[0] != "Bearer" || strings.TrimSpace(parts[1]) == "" {
-				api.SendUnauthorized(w, r, api.Error("invalid Authorization header"))
+				api.SendUnauthorized(w, r, "invalid Authorization header")
 				return
 			}
 
 			claims, err := jwtManager.ParseToken(parts[1])
 			if err != nil {
-				api.SendUnauthorized(w, r, api.Error("invalid token"))
+				api.SendUnauthorized(w, r, "invalid token")
 				return
 			}
 

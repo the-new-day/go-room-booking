@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const defaultRoleUponRegistration = entity.RoleUser
+
 func TestAuthUseCase_Register(t *testing.T) {
 	const accessTokenTTL = 30 * time.Minute
 
@@ -74,13 +76,13 @@ func TestAuthUseCase_Register(t *testing.T) {
 
 			mockUser := &entity.User{
 				UserID:       mockUserID,
-				Role:         DefaultRoleUponRegistration,
+				Role:         defaultRoleUponRegistration,
 				Email:        tt.email,
 				PasswordHash: tt.mockPasswordHash,
 			}
 			mockRepo := mocks.NewMockUserRepository(t)
 			call := mockRepo.EXPECT().
-				Create(t.Context(), tt.email, tt.mockPasswordHash, DefaultRoleUponRegistration).
+				Create(t.Context(), tt.email, tt.mockPasswordHash, defaultRoleUponRegistration).
 				Return(mockUser, tt.mockRepoErr)
 
 			if tt.mockPasswordHasherErr == nil {
@@ -93,7 +95,7 @@ func TestAuthUseCase_Register(t *testing.T) {
 
 			uc := New(mockRepo, mockTokenManager, mockHasher)
 
-			user, err := uc.Register(t.Context(), tt.email, tt.password)
+			user, err := uc.Register(t.Context(), tt.email, tt.password, string(defaultRoleUponRegistration))
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
@@ -174,7 +176,7 @@ func TestAuthUseCase_Login(t *testing.T) {
 
 			mockUser := &entity.User{
 				UserID:       mockUserID,
-				Role:         DefaultRoleUponRegistration,
+				Role:         defaultRoleUponRegistration,
 				Email:        tt.email,
 				PasswordHash: tt.userPasswordHash,
 			}
@@ -191,7 +193,7 @@ func TestAuthUseCase_Login(t *testing.T) {
 
 			mockTokenManager := mocks.NewMockTokenManager(t)
 			tmCall := mockTokenManager.EXPECT().
-				CreateToken(mockUserID.String(), string(DefaultRoleUponRegistration)).
+				CreateToken(mockUserID.String(), string(defaultRoleUponRegistration)).
 				Return(tt.wantToken, tt.mockTokenManagerErr)
 
 			if tt.passwordMatches {

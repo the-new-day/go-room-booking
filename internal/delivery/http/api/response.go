@@ -9,30 +9,40 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type Response struct {
-	Status string `json:"status"`
-	Error  string `json:"error,omitempty"`
-}
+type ErrorCode string
 
 const (
-	StatusOK    = "OK"
-	StatusError = "Error"
+	ErrorCodeInvalidRequest    ErrorCode = "INVALID_REQUEST"
+	ErrorCodeUnauthorized      ErrorCode = "UNAUTHORIZED"
+	ErrorCodeNotFound          ErrorCode = "NOT_FOUND"
+	ErrorCodeRoomNotFound      ErrorCode = "ROOM_NOT_FOUND"
+	ErrorCodeSlotNotFound      ErrorCode = "SLOT_NOT_FOUND"
+	ErrorCodeSlotAlreadyBooked ErrorCode = "SLOT_ALREADY_BOOKED"
+	ErrorCodeBookingNotFound   ErrorCode = "BOOKING_NOT_FOUND"
+	ErrorCodeForbidden         ErrorCode = "FORBIDDEN"
+	ErrorCodeScheduleExists    ErrorCode = "SCHEDULE_EXISTS"
+	ErrorCodeInternalError     ErrorCode = "INTERNAL_ERROR"
 )
 
-func OK() Response {
-	return Response{
-		Status: StatusOK,
+type ErrorResponse struct {
+	Error ErrorDetail `json:"error,omitzero"`
+}
+
+type ErrorDetail struct {
+	Code    ErrorCode `json:"code"`
+	Message string    `json:"message"`
+}
+
+func NewErrorResponse(code ErrorCode, message string) ErrorResponse {
+	return ErrorResponse{
+		Error: ErrorDetail{
+			Code:    code,
+			Message: message,
+		},
 	}
 }
 
-func Error(msg string) Response {
-	return Response{
-		Status: StatusError,
-		Error:  msg,
-	}
-}
-
-func ValidationError(errs validator.ValidationErrors) Response {
+func ValidationError(errs validator.ValidationErrors) string {
 	var errMsgs []string
 
 	for _, err := range errs {
@@ -48,33 +58,70 @@ func ValidationError(errs validator.ValidationErrors) Response {
 		}
 	}
 
-	return Response{
-		Status: StatusError,
-		Error:  strings.Join(errMsgs, ", "),
-	}
+	return strings.Join(errMsgs, ", ")
 }
 
-func SendBadRequest(w http.ResponseWriter, r *http.Request, resp Response) {
+func SendBadRequest(w http.ResponseWriter, r *http.Request, message string) {
 	render.Status(r, http.StatusBadRequest)
-	render.JSON(w, r, resp)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeInvalidRequest, message))
 }
 
-func SendInternalServerError(w http.ResponseWriter, r *http.Request, resp Response) {
-	render.Status(r, http.StatusInternalServerError)
-	render.JSON(w, r, resp)
-}
-
-func SendNotFound(w http.ResponseWriter, r *http.Request, resp Response) {
-	render.Status(r, http.StatusNotFound)
-	render.JSON(w, r, resp)
-}
-
-func SendUnauthorized(w http.ResponseWriter, r *http.Request, resp Response) {
+func SendUnauthorized(w http.ResponseWriter, r *http.Request, message string) {
 	render.Status(r, http.StatusUnauthorized)
-	render.JSON(w, r, resp)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeUnauthorized, message))
 }
 
-func SendForbidden(w http.ResponseWriter, r *http.Request, resp Response) {
+func SendForbidden(w http.ResponseWriter, r *http.Request, message string) {
 	render.Status(r, http.StatusForbidden)
-	render.JSON(w, r, resp)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeForbidden, message))
+}
+
+func SendNotFound(w http.ResponseWriter, r *http.Request, message string) {
+	render.Status(r, http.StatusNotFound)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeNotFound, message))
+}
+
+func SendRoomNotFound(w http.ResponseWriter, r *http.Request, message string) {
+	render.Status(r, http.StatusNotFound)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeRoomNotFound, message))
+}
+
+func SendSlotNotFound(w http.ResponseWriter, r *http.Request, message string) {
+	render.Status(r, http.StatusNotFound)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeSlotNotFound, message))
+}
+
+func SendBookingNotFound(w http.ResponseWriter, r *http.Request, message string) {
+	render.Status(r, http.StatusNotFound)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeBookingNotFound, message))
+}
+
+func SendSlotAlreadyBooked(w http.ResponseWriter, r *http.Request, message string) {
+	render.Status(r, http.StatusConflict)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeSlotAlreadyBooked, message))
+}
+
+func SendScheduleExists(w http.ResponseWriter, r *http.Request, message string) {
+	render.Status(r, http.StatusConflict)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeScheduleExists, message))
+}
+
+func SendInternalError(w http.ResponseWriter, r *http.Request, message string) {
+	render.Status(r, http.StatusInternalServerError)
+	render.JSON(w, r, NewErrorResponse(ErrorCodeInternalError, message))
+}
+
+func SendOK(w http.ResponseWriter, r *http.Request, data interface{}) {
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, data)
+}
+
+func SendCreated(w http.ResponseWriter, r *http.Request, data interface{}) {
+	render.Status(r, http.StatusCreated)
+	render.JSON(w, r, data)
+}
+
+func SendNoContent(w http.ResponseWriter, r *http.Request) {
+	render.Status(r, http.StatusNoContent)
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -14,8 +14,6 @@ var (
 	ErrFailedToHashPassword = errors.New("failed to hash password")
 )
 
-const DefaultRoleUponRegistration = entity.RoleUser
-
 type UserRepository interface {
 	Create(ctx context.Context, email, passwordHash string, role entity.UserRole) (*entity.User, error)
 	FindByEmail(ctx context.Context, email string) (*entity.User, error)
@@ -67,15 +65,19 @@ func (u *UseCase) Login(ctx context.Context, email, password string) (string, er
 	return token, nil
 }
 
-func (u *UseCase) Register(ctx context.Context, email, password string) (*entity.User, error) {
+func (u *UseCase) Register(ctx context.Context, email, password, role string) (*entity.User, error) {
 	const op = "usecase.auth.Register"
+
+	if !entity.IsValidRole(entity.UserRole(role)) {
+		return nil, domain.ErrInvalidRole
+	}
 
 	passwordHash, err := u.passwordHasher.Hash(password)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrFailedToHashPassword)
 	}
 
-	user, err := u.repo.Create(ctx, email, passwordHash, DefaultRoleUponRegistration)
+	user, err := u.repo.Create(ctx, email, passwordHash, entity.UserRole(role))
 
 	if errors.Is(err, storage.ErrAlreadyExists) {
 		return nil, fmt.Errorf("%s: %w", op, domain.ErrUserWithEmailAlreadyExists)
