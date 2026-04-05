@@ -11,7 +11,8 @@ down:
 .PHONY: down
 
 seed:
-	echo "TODO"
+	docker compose --profile migrations run --rm migrator
+	docker compose --profile seed run --rm --build seed
 .PHONY: seed
 
 migrate-up:
