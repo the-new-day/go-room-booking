@@ -10,11 +10,11 @@ import (
 )
 
 type Config struct {
-	Log        Log        `yaml:"log" env-required:"true"`
-	Postgres   Postgres   `yaml:"postgres" env-required:"true"`
-	HttpServer HttpServer `yaml:"http_server" env-required:"true"`
-	JwtConfig  JwtConfig  `yaml:"jwt" env-required:"true"`
-	PasswordHasher
+	Log            Log        `yaml:"log" env-required:"true"`
+	Postgres       Postgres   `yaml:"postgres" env-required:"true"`
+	HttpServer     HttpServer `yaml:"http_server" env-required:"true"`
+	JwtConfig      JwtConfig  `yaml:"jwt" env-required:"true"`
+	PasswordHasher PasswordHasher
 }
 
 type Log struct {

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/internships-backend/test-backend-the-new-day/internal/config"
+	"github.com/internships-backend/test-backend-the-new-day/pkg/logger/sl"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/postgres"
 )
 
@@ -38,7 +39,7 @@ func setupLogger(level string) *slog.Logger {
 	case logLevelInfo:
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	case logLevelDiscard:
-		logger = slog.New(slog.DiscardHandler)
+		logger = sl.NewDiscardLogger()
 	default:
 		log.Fatalf("logger setup failed: unsupported level %q", level)
 	}
