@@ -19,7 +19,7 @@ func NewRouter(logger *slog.Logger, jwtManager *auth.JwtManager) *Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
-	r.Use(mw.NewLoggerMiddleware(logger))
+	r.Use(mw.LoggerMiddleware(logger))
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.URLFormat)
 

@@ -68,3 +68,13 @@ func SendNotFound(w http.ResponseWriter, r *http.Request, resp Response) {
 	render.Status(r, http.StatusNotFound)
 	render.JSON(w, r, resp)
 }
+
+func SendUnauthorized(w http.ResponseWriter, r *http.Request, resp Response) {
+	render.Status(r, http.StatusUnauthorized)
+	render.JSON(w, r, resp)
+}
+
+func SendForbidden(w http.ResponseWriter, r *http.Request, resp Response) {
+	render.Status(r, http.StatusForbidden)
+	render.JSON(w, r, resp)
+}

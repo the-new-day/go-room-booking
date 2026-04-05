@@ -8,16 +8,16 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func NewLoggerMiddleware(log *slog.Logger) func(next http.Handler) http.Handler {
+func LoggerMiddleware(logger *slog.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		log := log.With(
+		logger := logger.With(
 			slog.String("component", "middleware.logger"),
 		)
 
-		log.Info("logger middleware enabled")
+		logger.Info("logger middleware enabled")
 
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			entry := log.With(
+			entry := logger.With(
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.Path),
 				slog.String("remote_addr", r.RemoteAddr),
