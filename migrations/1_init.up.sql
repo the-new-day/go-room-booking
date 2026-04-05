@@ -40,9 +40,6 @@ CREATE TABLE IF NOT EXISTS slots (
     end_time TIMESTAMP WITH TIME ZONE NOT NULL,
     is_available BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    CONSTRAINT slot_duration_check CHECK (
-        EXTRACT(EPOCH FROM (end_time - start_time)) = 1800
-    ),
     CONSTRAINT valid_time_range CHECK (start_time < end_time)
 );
 

@@ -1,7 +1,6 @@
 package infook
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -46,11 +45,8 @@ func TestInfoOkHandler(t *testing.T) {
 			handler := New()
 			handler.ServeHTTP(rr, r)
 
-			var resp any
-			require.NoError(t, json.NewDecoder(rr.Body).Decode(&resp))
-
 			require.Equal(t, http.StatusOK, rr.Code)
-			require.Zero(t, resp)
+			require.Empty(t, rr.Body)
 		})
 	}
 }

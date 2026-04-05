@@ -10,7 +10,7 @@ import (
 	"github.com/internships-backend/test-backend-the-new-day/pkg/logger/sl"
 )
 
-type room struct {
+type roomDto struct {
 	RoomID      string  `json:"id"`
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
@@ -19,7 +19,7 @@ type room struct {
 }
 
 type ListResponse struct {
-	Rooms []room `json:"rooms"`
+	Rooms []roomDto `json:"rooms"`
 }
 
 type RoomLister interface {
@@ -43,8 +43,8 @@ func NewListHandler(logger *slog.Logger, roomLister RoomLister) http.HandlerFunc
 	}
 }
 
-func mapRoomsToDto(rooms []*entity.Room) []room {
-	res := make([]room, len(rooms))
+func mapRoomsToDto(rooms []*entity.Room) []roomDto {
+	res := make([]roomDto, len(rooms))
 	for i, room := range rooms {
 		res[i].RoomID = room.RoomID.String()
 		res[i].Name = room.Name

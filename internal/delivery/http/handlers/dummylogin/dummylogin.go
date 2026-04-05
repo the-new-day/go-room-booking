@@ -20,7 +20,6 @@ type Request struct {
 }
 
 type Response struct {
-	api.ErrorResponse
 	Token string `json:"token"`
 }
 

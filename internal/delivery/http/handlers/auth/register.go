@@ -19,6 +19,10 @@ type RegisterRequest struct {
 }
 
 type RegisterResponse struct {
+	User UserResponse `json:"user"`
+}
+
+type UserResponse struct {
 	UserID    string  `json:"id"`
 	Email     string  `json:"email"`
 	Role      string  `json:"role"`
@@ -43,6 +47,9 @@ func NewRegisterHandler(logger *slog.Logger, registerer Registerer) http.Handler
 
 			api.SendBadRequest(w, r, "user with provided email already exists")
 			return
+		} else if errors.Is(err, domain.ErrInvalidRole) {
+			api.SendBadRequest(w, r, "invalid role")
+			return
 		} else if err != nil {
 			logger.Error("failed to register user", sl.Err(err))
 
@@ -51,10 +58,12 @@ func NewRegisterHandler(logger *slog.Logger, registerer Registerer) http.Handler
 		}
 
 		api.SendCreated(w, r, RegisterResponse{
-			UserID:    user.UserID.String(),
-			Email:     user.Email,
-			Role:      string(user.Role),
-			CreatedAt: nil,
+			User: UserResponse{
+				UserID:    user.UserID.String(),
+				Email:     user.Email,
+				Role:      string(user.Role),
+				CreatedAt: nil,
+			},
 		})
 	}
 }

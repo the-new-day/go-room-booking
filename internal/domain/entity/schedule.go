@@ -23,7 +23,7 @@ const (
 type Schedule struct {
 	ScheduleID uuid.UUID `db:"schedule_id"`
 	RoomID     uuid.UUID `db:"room_id"`
-	Weekdays   []Weekday `db:"weekdays"`
+	Weekdays   []Weekday `db:"days_of_week"`
 	StartAt    time.Time `db:"start_at"`
 	EndAt      time.Time `db:"end_at"`
 	CreatedAt  time.Time `db:"created_at"`

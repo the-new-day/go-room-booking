@@ -2,10 +2,14 @@ package pg
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/internships-backend/test-backend-the-new-day/internal/domain/entity"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/postgres"
+	"github.com/jackc/pgx/v5"
 )
 
 type RoomRepository struct {
@@ -81,4 +85,29 @@ func (r *RoomRepository) List(ctx context.Context) ([]*entity.Room, error) {
 	}
 
 	return rooms, nil
+}
+
+func (r *RoomRepository) Exists(ctx context.Context, roomID string) (bool, error) {
+	const op = "storage.pg.RoomRepository.Exists"
+
+	query, args, err := r.db.Builder.
+		Select("1").
+		From("rooms").
+		Where(squirrel.Eq{"id": roomID}).
+		Limit(1).
+		ToSql()
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	var exists int
+	err = r.db.Pool.QueryRow(ctx, query, args...).Scan(&exists)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) || errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return true, nil
 }

@@ -36,7 +36,7 @@ type HttpServer struct {
 }
 
 type Jwt struct {
-	SignKey    string        `env:"JWT_SIGN_KEY" env-required:"true"`
+	SignKey    string        `env:"JWT_SIGN_KEY" env-default:"secret"`
 	AccessTTL  time.Duration `env:"JWT_ACCESS_TTL" env-default:"15m"`
 	RefreshTTL time.Duration `env:"JWT_REFRESH_TTL" env-default:"168h"`
 }

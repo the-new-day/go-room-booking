@@ -16,7 +16,10 @@ import (
 	"github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/router"
 	"github.com/internships-backend/test-backend-the-new-day/internal/storage/pg"
 	"github.com/internships-backend/test-backend-the-new-day/internal/usecase/auth"
+	"github.com/internships-backend/test-backend-the-new-day/internal/usecase/booking"
 	"github.com/internships-backend/test-backend-the-new-day/internal/usecase/room"
+	"github.com/internships-backend/test-backend-the-new-day/internal/usecase/schedule"
+	"github.com/internships-backend/test-backend-the-new-day/internal/usecase/slot"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/hasher"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/logger/sl"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/postgres"
@@ -30,7 +33,7 @@ const (
 
 func Run(cfg *config.Config) {
 	// Logger
-	logger := setupLogger(cfg.Log.Level)
+	logger := SetupLogger(cfg.Log.Level)
 	logger.Info("starting server")
 	logger.Debug("debug messages are enabled")
 
@@ -40,17 +43,23 @@ func Run(cfg *config.Config) {
 
 	// Infrastructure
 	logger.Info("connecting to Postgres")
-	db := setupDatabase(cfg.Postgres.DSN(), cfg.Postgres.MaxPoolSize)
+	db := SetupDatabase(cfg.Postgres.DSN(), cfg.Postgres.MaxPoolSize)
 	jwtManager := authjwt.NewJwtManager(cfg.JwtConfig.SignKey, cfg.JwtConfig.AccessTTL)
 	passwordHasher := hasher.NewBcryptHasher()
 
 	// Repositorires
 	userRepo := pg.NewUserRepository(db)
 	roomRepo := pg.NewRoomRepository(db)
+	scheduleRepo := pg.NewScheduleRepository(db)
+	slotRepo := pg.NewSlotRepository(db)
+	bookingRepo := pg.NewBookingRepository(db)
 
 	// Use cases
 	authUseCase := auth.New(userRepo, jwtManager, passwordHasher)
 	roomUseCase := room.New(roomRepo)
+	scheduleUseCase := schedule.New(scheduleRepo, roomRepo, slotRepo)
+	slotUseCase := slot.New(roomRepo, scheduleRepo, slotRepo)
+	bookingUseCase := booking.New(bookingRepo, slotRepo)
 
 	// HTTP server
 	router := router.NewRouter(
@@ -58,6 +67,9 @@ func Run(cfg *config.Config) {
 		jwtManager,
 		authUseCase,
 		roomUseCase,
+		scheduleUseCase,
+		slotUseCase,
+		bookingUseCase,
 	)
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.HttpServer.Port),
@@ -90,7 +102,7 @@ func Run(cfg *config.Config) {
 	logger.Info("Postgres closed")
 }
 
-func setupLogger(level string) *slog.Logger {
+func SetupLogger(level string) *slog.Logger {
 	var logger *slog.Logger
 
 	switch level {
@@ -107,10 +119,19 @@ func setupLogger(level string) *slog.Logger {
 	return logger
 }
 
-func setupDatabase(dsn string, maxPoolSize int) *postgres.Postgres {
+func SetupDatabase(dsn string, maxPoolSize int) *postgres.Postgres {
 	pg, err := postgres.New(dsn, postgres.MaxPoolSize(maxPoolSize))
 	if err != nil {
 		log.Fatalf("database setup failed: %v", err)
 	}
 	return pg
+}
+
+func LoadConfig() *config.Config {
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	return cfg
 }

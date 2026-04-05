@@ -13,13 +13,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const defaultRoleUponRegistration = entity.RoleUser
-
 func TestAuthUseCase_Register(t *testing.T) {
 	const accessTokenTTL = 30 * time.Minute
 
 	mockErr := errors.New("aaa")
 	mockUserID := uuid.New()
+	defaultRoleUponRegistration := entity.RoleUser
 
 	tests := []struct {
 		name     string
@@ -44,7 +43,7 @@ func TestAuthUseCase_Register(t *testing.T) {
 			email:            "example@gmail.com",
 			password:         "abcde",
 			mockPasswordHash: "123",
-			mockRepoErr:      storage.ErrAlreadyExists,
+			mockRepoErr:      storage.ErrDuplicateEmail,
 			wantErr:          domain.ErrUserWithEmailAlreadyExists,
 		},
 		{
@@ -82,7 +81,7 @@ func TestAuthUseCase_Register(t *testing.T) {
 			}
 			mockRepo := mocks.NewMockUserRepository(t)
 			call := mockRepo.EXPECT().
-				Create(t.Context(), tt.email, tt.mockPasswordHash, defaultRoleUponRegistration).
+				Create(t.Context(), tt.email, tt.mockPasswordHash, string(defaultRoleUponRegistration)).
 				Return(mockUser, tt.mockRepoErr)
 
 			if tt.mockPasswordHasherErr == nil {
@@ -117,6 +116,7 @@ func TestAuthUseCase_Login(t *testing.T) {
 
 	mockErr := errors.New("aaa")
 	mockUserID := uuid.New()
+	defaultRoleUponRegistration := entity.RoleUser
 
 	tests := []struct {
 		name     string
