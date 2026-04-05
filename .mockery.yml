@@ -6,6 +6,7 @@ force-file-write: true
 structname: "{{.Mock}}{{.InterfaceName}}"
 template: testify
 packages:
-  github.com/internships-backend/test-backend-the-new-day/internal/http/handlers/saveurl:
+  github.com/internships-backend/test-backend-the-new-day/internal/usecase/room:
     interfaces:
+      RoomRepository: {}
       
