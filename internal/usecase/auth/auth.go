@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/internships-backend/test-backend-the-new-day/internal/domain"
 	"github.com/internships-backend/test-backend-the-new-day/internal/domain/entity"
@@ -28,22 +27,20 @@ type PasswordHasher interface {
 }
 
 type TokenManager interface {
-	CreateToken(userID, role string, accessTTL time.Duration) (string, error)
+	CreateToken(userID, role string) (string, error)
 }
 
 type UseCase struct {
 	repo           UserRepository
 	tokenManager   TokenManager
 	passwordHasher PasswordHasher
-	accessTokenTTL time.Duration
 }
 
-func New(repo UserRepository, tokenManager TokenManager, passwordHasher PasswordHasher, accessTokenTTL time.Duration) *UseCase {
+func New(repo UserRepository, tokenManager TokenManager, passwordHasher PasswordHasher) *UseCase {
 	return &UseCase{
 		repo:           repo,
 		tokenManager:   tokenManager,
 		passwordHasher: passwordHasher,
-		accessTokenTTL: accessTokenTTL,
 	}
 }
 
@@ -62,7 +59,7 @@ func (u *UseCase) Login(ctx context.Context, email, password string) (string, er
 		return "", fmt.Errorf("%s: %w", op, domain.ErrInvalidPassword)
 	}
 
-	token, err := u.tokenManager.CreateToken(user.UserID.String(), string(user.Role), u.accessTokenTTL)
+	token, err := u.tokenManager.CreateToken(user.UserID.String(), string(user.Role))
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", op, err)
 	}

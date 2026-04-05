@@ -91,7 +91,7 @@ func TestAuthUseCase_Register(t *testing.T) {
 
 			mockTokenManager := mocks.NewMockTokenManager(t)
 
-			uc := New(mockRepo, mockTokenManager, mockHasher, accessTokenTTL)
+			uc := New(mockRepo, mockTokenManager, mockHasher)
 
 			user, err := uc.Register(t.Context(), tt.email, tt.password)
 
@@ -191,7 +191,7 @@ func TestAuthUseCase_Login(t *testing.T) {
 
 			mockTokenManager := mocks.NewMockTokenManager(t)
 			tmCall := mockTokenManager.EXPECT().
-				CreateToken(mockUserID.String(), string(DefaultRoleUponRegistration), accessTokenTTL).
+				CreateToken(mockUserID.String(), string(DefaultRoleUponRegistration)).
 				Return(tt.wantToken, tt.mockTokenManagerErr)
 
 			if tt.passwordMatches {
@@ -206,7 +206,7 @@ func TestAuthUseCase_Login(t *testing.T) {
 				hasherCall.Unset()
 			}
 
-			uc := New(mockRepo, mockTokenManager, mockHasher, accessTokenTTL)
+			uc := New(mockRepo, mockTokenManager, mockHasher)
 
 			token, err := uc.Login(t.Context(), tt.email, tt.password)
 

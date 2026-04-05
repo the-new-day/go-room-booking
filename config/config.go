@@ -12,7 +12,7 @@ type Config struct {
 	Log        Log
 	Postgres   Postgres
 	HttpServer HttpServer
-	JwtConfig  JwtConfig
+	JwtConfig  Jwt
 }
 
 type Log struct {
@@ -35,7 +35,7 @@ type HttpServer struct {
 	IdleTimeout time.Duration `env:"HTTP_SERVER_IDLE_TIMEOUT" env-default:"20s"`
 }
 
-type JwtConfig struct {
+type Jwt struct {
 	SignKey    string        `env:"JWT_SIGN_KEY" env-required:"true"`
 	AccessTTL  time.Duration `env:"JWT_ACCESS_TTL" env-default:"15m"`
 	RefreshTTL time.Duration `env:"JWT_REFRESH_TTL" env-default:"168h"`

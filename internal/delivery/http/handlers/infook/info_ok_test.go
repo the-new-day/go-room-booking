@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/api"
-	"github.com/internships-backend/test-backend-the-new-day/pkg/logger/sl"
 	"github.com/stretchr/testify/require"
 )
 
@@ -45,7 +44,7 @@ func TestInfoOkHandler(t *testing.T) {
 			rr := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, endpoint, nil)
 
-			handler := InfoOkHandler(sl.NewDiscardLogger())
+			handler := New()
 			handler.ServeHTTP(rr, r)
 
 			var resp api.Response

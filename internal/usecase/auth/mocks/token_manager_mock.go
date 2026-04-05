@@ -5,8 +5,6 @@
 package mocks
 
 import (
-	"time"
-
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -38,8 +36,8 @@ func (_m *MockTokenManager) EXPECT() *MockTokenManager_Expecter {
 }
 
 // CreateToken provides a mock function for the type MockTokenManager
-func (_mock *MockTokenManager) CreateToken(userID string, role string, accessTTL time.Duration) (string, error) {
-	ret := _mock.Called(userID, role, accessTTL)
+func (_mock *MockTokenManager) CreateToken(userID string, role string) (string, error) {
+	ret := _mock.Called(userID, role)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateToken")
@@ -47,16 +45,16 @@ func (_mock *MockTokenManager) CreateToken(userID string, role string, accessTTL
 
 	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string, string, time.Duration) (string, error)); ok {
-		return returnFunc(userID, role, accessTTL)
+	if returnFunc, ok := ret.Get(0).(func(string, string) (string, error)); ok {
+		return returnFunc(userID, role)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string, string, time.Duration) string); ok {
-		r0 = returnFunc(userID, role, accessTTL)
+	if returnFunc, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = returnFunc(userID, role)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(string, string, time.Duration) error); ok {
-		r1 = returnFunc(userID, role, accessTTL)
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(userID, role)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -71,12 +69,11 @@ type MockTokenManager_CreateToken_Call struct {
 // CreateToken is a helper method to define mock.On call
 //   - userID string
 //   - role string
-//   - accessTTL time.Duration
-func (_e *MockTokenManager_Expecter) CreateToken(userID interface{}, role interface{}, accessTTL interface{}) *MockTokenManager_CreateToken_Call {
-	return &MockTokenManager_CreateToken_Call{Call: _e.mock.On("CreateToken", userID, role, accessTTL)}
+func (_e *MockTokenManager_Expecter) CreateToken(userID interface{}, role interface{}) *MockTokenManager_CreateToken_Call {
+	return &MockTokenManager_CreateToken_Call{Call: _e.mock.On("CreateToken", userID, role)}
 }
 
-func (_c *MockTokenManager_CreateToken_Call) Run(run func(userID string, role string, accessTTL time.Duration)) *MockTokenManager_CreateToken_Call {
+func (_c *MockTokenManager_CreateToken_Call) Run(run func(userID string, role string)) *MockTokenManager_CreateToken_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
@@ -86,14 +83,9 @@ func (_c *MockTokenManager_CreateToken_Call) Run(run func(userID string, role st
 		if args[1] != nil {
 			arg1 = args[1].(string)
 		}
-		var arg2 time.Duration
-		if args[2] != nil {
-			arg2 = args[2].(time.Duration)
-		}
 		run(
 			arg0,
 			arg1,
-			arg2,
 		)
 	})
 	return _c
@@ -104,7 +96,7 @@ func (_c *MockTokenManager_CreateToken_Call) Return(s string, err error) *MockTo
 	return _c
 }
 
-func (_c *MockTokenManager_CreateToken_Call) RunAndReturn(run func(userID string, role string, accessTTL time.Duration) (string, error)) *MockTokenManager_CreateToken_Call {
+func (_c *MockTokenManager_CreateToken_Call) RunAndReturn(run func(userID string, role string) (string, error)) *MockTokenManager_CreateToken_Call {
 	_c.Call.Return(run)
 	return _c
 }

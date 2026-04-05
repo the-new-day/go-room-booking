@@ -13,19 +13,23 @@ type TokenClaims struct {
 }
 
 type JwtManager struct {
-	signKey []byte
+	signKey        []byte
+	accessTokenTTL time.Duration
 }
 
-func NewJwtManager(signKey string) *JwtManager {
-	return &JwtManager{signKey: []byte(signKey)}
+func NewJwtManager(signKey string, accessTokenTTL time.Duration) *JwtManager {
+	return &JwtManager{
+		signKey:        []byte(signKey),
+		accessTokenTTL: accessTokenTTL,
+	}
 }
 
-func (m *JwtManager) CreateToken(userID, role string, accessTTL time.Duration) (string, error) {
+func (m *JwtManager) CreateToken(userID, role string) (string, error) {
 	claims := TokenClaims{
 		UserID: userID,
 		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(accessTTL)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(m.accessTokenTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 		},
 	}
@@ -48,4 +52,8 @@ func (m *JwtManager) ParseToken(raw string) (*TokenClaims, error) {
 	}
 
 	return claims, nil
+}
+
+func (m *JwtManager) AccessTokenTTL() time.Duration {
+	return m.accessTokenTTL
 }

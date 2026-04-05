@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/internships-backend/test-backend-the-new-day/config"
+	"github.com/internships-backend/test-backend-the-new-day/internal/auth"
 	"github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/router"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/logger/sl"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/postgres"
@@ -35,9 +36,13 @@ func Run(cfg *config.Config) {
 	logger.Info("connecting to Postgres")
 	db := setupDatabase(cfg.Postgres.DSN(), cfg.Postgres.MaxPoolSize)
 
+	jwtManager := auth.NewJwtManager(cfg.JwtConfig.SignKey, cfg.JwtConfig.AccessTTL)
+
+	router := router.NewRouter(logger, jwtManager)
+
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.HttpServer.Port),
-		Handler:      router.NewRouter(logger),
+		Handler:      router,
 		ReadTimeout:  cfg.HttpServer.Timeout,
 		WriteTimeout: cfg.HttpServer.Timeout,
 		IdleTimeout:  cfg.HttpServer.IdleTimeout,
