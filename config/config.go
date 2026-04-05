@@ -9,11 +9,10 @@ import (
 )
 
 type Config struct {
-	Log            Log
-	Postgres       Postgres
-	HttpServer     HttpServer
-	JwtConfig      JwtConfig
-	PasswordHasher PasswordHasher
+	Log        Log
+	Postgres   Postgres
+	HttpServer HttpServer
+	JwtConfig  JwtConfig
 }
 
 type Log struct {
@@ -40,10 +39,6 @@ type JwtConfig struct {
 	SignKey    string        `env:"JWT_SIGN_KEY" env-required:"true"`
 	AccessTTL  time.Duration `env:"JWT_ACCESS_TTL" env-default:"15m"`
 	RefreshTTL time.Duration `env:"JWT_REFRESH_TTL" env-default:"168h"`
-}
-
-type PasswordHasher struct {
-	Salt string `env:"PASSWORD_HASHER_SALT" env-required:"true"`
 }
 
 func NewConfig() (*Config, error) {

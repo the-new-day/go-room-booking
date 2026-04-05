@@ -52,8 +52,6 @@ services:
       POSTGRES_SSLMODE: disable
 
       JWT_SIGN_KEY: ${JWT_SIGN_KEY:-secret_key}
-
-      PASSWORD_HASHER_SALT: ${PASSWORD_HASHER_SALT:-}
     restart: unless-stopped
 
 volumes:
