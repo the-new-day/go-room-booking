@@ -15,7 +15,7 @@ var (
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, email, passwordHash string, role entity.UserRole) (*entity.User, error)
+	Create(ctx context.Context, email, passwordHash, role string) (*entity.User, error)
 	FindByEmail(ctx context.Context, email string) (*entity.User, error)
 }
 
@@ -77,9 +77,9 @@ func (u *UseCase) Register(ctx context.Context, email, password, role string) (*
 		return nil, fmt.Errorf("%s: %w", op, ErrFailedToHashPassword)
 	}
 
-	user, err := u.repo.Create(ctx, email, passwordHash, entity.UserRole(role))
+	user, err := u.repo.Create(ctx, email, passwordHash, role)
 
-	if errors.Is(err, storage.ErrAlreadyExists) {
+	if errors.Is(err, storage.ErrDuplicateEmail) {
 		return nil, fmt.Errorf("%s: %w", op, domain.ErrUserWithEmailAlreadyExists)
 	} else if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)

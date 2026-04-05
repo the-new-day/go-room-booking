@@ -12,8 +12,12 @@ import (
 	"time"
 
 	"github.com/internships-backend/test-backend-the-new-day/config"
-	"github.com/internships-backend/test-backend-the-new-day/internal/auth"
+	authjwt "github.com/internships-backend/test-backend-the-new-day/internal/auth"
 	"github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/router"
+	"github.com/internships-backend/test-backend-the-new-day/internal/storage/pg"
+	"github.com/internships-backend/test-backend-the-new-day/internal/usecase/auth"
+	"github.com/internships-backend/test-backend-the-new-day/internal/usecase/room"
+	"github.com/internships-backend/test-backend-the-new-day/pkg/hasher"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/logger/sl"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/postgres"
 )
@@ -25,21 +29,36 @@ const (
 )
 
 func Run(cfg *config.Config) {
+	// Logger
 	logger := setupLogger(cfg.Log.Level)
-
 	logger.Info("starting server")
 	logger.Debug("debug messages are enabled")
 
+	// Graceful shutdown signal
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
 
+	// Infrastructure
 	logger.Info("connecting to Postgres")
 	db := setupDatabase(cfg.Postgres.DSN(), cfg.Postgres.MaxPoolSize)
+	jwtManager := authjwt.NewJwtManager(cfg.JwtConfig.SignKey, cfg.JwtConfig.AccessTTL)
+	passwordHasher := hasher.NewBcryptHasher()
 
-	jwtManager := auth.NewJwtManager(cfg.JwtConfig.SignKey, cfg.JwtConfig.AccessTTL)
+	// Repositorires
+	userRepo := pg.NewUserRepository(db)
+	roomRepo := pg.NewRoomRepository(db)
 
-	router := router.NewRouter(logger, jwtManager)
+	// Use cases
+	authUseCase := auth.New(userRepo, jwtManager, passwordHasher)
+	roomUseCase := room.New(roomRepo)
 
+	// HTTP server
+	router := router.NewRouter(
+		logger,
+		jwtManager,
+		authUseCase,
+		roomUseCase,
+	)
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.HttpServer.Port),
 		Handler:      router,

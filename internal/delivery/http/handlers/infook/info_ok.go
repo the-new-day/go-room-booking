@@ -8,6 +8,6 @@ import (
 
 func New() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		api.SendOK(w, r, nil)
+		api.SendEmpty(r, http.StatusOK)
 	}
 }

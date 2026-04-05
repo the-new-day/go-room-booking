@@ -61,6 +61,10 @@ func ValidationError(errs validator.ValidationErrors) string {
 	return strings.Join(errMsgs, ", ")
 }
 
+func SendEmpty(r *http.Request, code int) {
+	render.Status(r, code)
+}
+
 func SendBadRequest(w http.ResponseWriter, r *http.Request, message string) {
 	render.Status(r, http.StatusBadRequest)
 	render.JSON(w, r, NewErrorResponse(ErrorCodeInvalidRequest, message))

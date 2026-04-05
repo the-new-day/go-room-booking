@@ -8,9 +8,23 @@ import (
 
 const SlotDuration = 30 * time.Minute
 
+type Weekday int
+
+const (
+	Monday Weekday = iota + 1
+	Tuesday
+	Wednesday
+	Thursday
+	Friday
+	Saturday
+	Sunday
+)
+
 type Schedule struct {
-	ScheduleID uuid.UUID    `db:"schedule_id"`
-	RoomID     uuid.UUID    `db:"room_id"`
-	Weekday    time.Weekday `db:"weekday"`
-	StartAt    time.Time    `db:"start_at"`
+	ScheduleID uuid.UUID `db:"schedule_id"`
+	RoomID     uuid.UUID `db:"room_id"`
+	Weekdays   []Weekday `db:"weekdays"`
+	StartAt    time.Time `db:"start_at"`
+	EndAt      time.Time `db:"end_at"`
+	CreatedAt  time.Time `db:"created_at"`
 }

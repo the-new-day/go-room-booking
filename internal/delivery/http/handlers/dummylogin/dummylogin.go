@@ -4,9 +4,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
-	"github.com/go-playground/validator/v10"
 	"github.com/internships-backend/test-backend-the-new-day/internal/auth"
 	"github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/api"
 	"github.com/internships-backend/test-backend-the-new-day/internal/domain/entity"
@@ -29,29 +26,8 @@ type Response struct {
 
 func New(logger *slog.Logger, jwtManager *auth.JwtManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.dummylogin.New"
-
-		logger = logger.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		var req Request
-		err := render.DecodeJSON(r.Body, &req)
-
-		if err != nil {
-			logger.Error("failed to decode request body", sl.Err(err))
-
-			api.SendBadRequest(w, r, "failed to decode request")
-			return
-		}
-
-		logger.Debug("request body decoded", slog.Any("request", req))
-
-		if err := validator.New().Struct(req); err != nil {
-			logger.Error("invalid request", sl.Err(err))
-
-			api.SendBadRequest(w, r, api.ValidationError(err.(validator.ValidationErrors)))
+		req, ok := api.DecodeRequest[Request](logger, w, r)
+		if !ok {
 			return
 		}
 

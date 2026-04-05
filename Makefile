@@ -6,6 +6,10 @@ up:
 	docker compose up --build
 .PHONY: up
 
+down:
+	docker compose down
+.PHONY: down
+
 seed:
 	echo "TODO"
 .PHONY: seed

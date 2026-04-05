@@ -39,7 +39,7 @@ func (_m *MockUserRepository) EXPECT() *MockUserRepository_Expecter {
 }
 
 // Create provides a mock function for the type MockUserRepository
-func (_mock *MockUserRepository) Create(ctx context.Context, email string, passwordHash string, role entity.UserRole) (*entity.User, error) {
+func (_mock *MockUserRepository) Create(ctx context.Context, email string, passwordHash string, role string) (*entity.User, error) {
 	ret := _mock.Called(ctx, email, passwordHash, role)
 
 	if len(ret) == 0 {
@@ -48,17 +48,17 @@ func (_mock *MockUserRepository) Create(ctx context.Context, email string, passw
 
 	var r0 *entity.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, entity.UserRole) (*entity.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) (*entity.User, error)); ok {
 		return returnFunc(ctx, email, passwordHash, role)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, entity.UserRole) *entity.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) *entity.User); ok {
 		r0 = returnFunc(ctx, email, passwordHash, role)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entity.User)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, entity.UserRole) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
 		r1 = returnFunc(ctx, email, passwordHash, role)
 	} else {
 		r1 = ret.Error(1)
@@ -75,12 +75,12 @@ type MockUserRepository_Create_Call struct {
 //   - ctx context.Context
 //   - email string
 //   - passwordHash string
-//   - role entity.UserRole
+//   - role string
 func (_e *MockUserRepository_Expecter) Create(ctx interface{}, email interface{}, passwordHash interface{}, role interface{}) *MockUserRepository_Create_Call {
 	return &MockUserRepository_Create_Call{Call: _e.mock.On("Create", ctx, email, passwordHash, role)}
 }
 
-func (_c *MockUserRepository_Create_Call) Run(run func(ctx context.Context, email string, passwordHash string, role entity.UserRole)) *MockUserRepository_Create_Call {
+func (_c *MockUserRepository_Create_Call) Run(run func(ctx context.Context, email string, passwordHash string, role string)) *MockUserRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -94,9 +94,9 @@ func (_c *MockUserRepository_Create_Call) Run(run func(ctx context.Context, emai
 		if args[2] != nil {
 			arg2 = args[2].(string)
 		}
-		var arg3 entity.UserRole
+		var arg3 string
 		if args[3] != nil {
-			arg3 = args[3].(entity.UserRole)
+			arg3 = args[3].(string)
 		}
 		run(
 			arg0,
@@ -113,7 +113,7 @@ func (_c *MockUserRepository_Create_Call) Return(user *entity.User, err error) *
 	return _c
 }
 
-func (_c *MockUserRepository_Create_Call) RunAndReturn(run func(ctx context.Context, email string, passwordHash string, role entity.UserRole) (*entity.User, error)) *MockUserRepository_Create_Call {
+func (_c *MockUserRepository_Create_Call) RunAndReturn(run func(ctx context.Context, email string, passwordHash string, role string) (*entity.User, error)) *MockUserRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

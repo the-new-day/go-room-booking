@@ -6,9 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
-	"github.com/go-playground/validator/v10"
 	"github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/api"
 	"github.com/internships-backend/test-backend-the-new-day/internal/domain"
 	"github.com/internships-backend/test-backend-the-new-day/pkg/logger/sl"
@@ -29,29 +26,8 @@ type Loginner interface {
 
 func NewLoginHandler(logger *slog.Logger, loginner Loginner) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.auth.NewLoginHandler"
-
-		logger = logger.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		var req LoginRequest
-		err := render.DecodeJSON(r.Body, &req)
-
-		if err != nil {
-			logger.Error("failed to decode request body", sl.Err(err))
-
-			api.SendBadRequest(w, r, "failed to decode request")
-			return
-		}
-
-		logger.Debug("request body decoded", slog.Any("request", req))
-
-		if err := validator.New().Struct(req); err != nil {
-			logger.Error("invalid request", sl.Err(err))
-
-			api.SendBadRequest(w, r, api.ValidationError(err.(validator.ValidationErrors)))
+		req, ok := api.DecodeRequest[LoginRequest](logger, w, r)
+		if !ok {
 			return
 		}
 
