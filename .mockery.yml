@@ -14,4 +14,30 @@ packages:
       UserRepository: {}
       PasswordHasher: {}
       TokenManager: {}
+  github.com/internships-backend/test-backend-the-new-day/internal/usecase/schedule:
+    interfaces:
+      ScheduleRepository: {}
+      RoomRepository: {}
+      SlotRepository: {}
+  github.com/internships-backend/test-backend-the-new-day/internal/usecase/slot:
+    interfaces:
+      RoomRepository: {}
+      ScheduleRepository: {}
+      SlotRepository: {}
+  github.com/internships-backend/test-backend-the-new-day/internal/usecase/booking:
+    interfaces:
+      BookingRepository: {}
+      SlotRepository: {}
+  github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/handlers/schedule:
+    interfaces:
+      ScheduleCreator: {}
+  github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/handlers/slot:
+    interfaces:
+      SlotLister: {}
+  github.com/internships-backend/test-backend-the-new-day/internal/delivery/http/handlers/booking:
+    interfaces:
+      BookingCreator: {}
+      BookingLister: {}
+      MyBookingLister: {}
+      BookingCanceler: {}
       
