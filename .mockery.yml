@@ -1,0 +1,11 @@
+all: false
+dir: "{{.InterfaceDir}}/mocks"
+pkgname: "mocks"
+filename: "{{.InterfaceName | snakecase}}_mock.go"
+force-file-write: true
+structname: "{{.Mock}}{{.InterfaceName}}"
+template: testify
+packages:
+  github.com/internships-backend/test-backend-the-new-day/internal/http/handlers/saveurl:
+    interfaces:
+      

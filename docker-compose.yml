@@ -15,6 +15,25 @@ services:
       timeout: 5s
       retries: 5
 
+  migrator:
+    image: migrate/migrate:v4.17.0
+    profiles:
+      - migrations
+    volumes:
+      - ./migrations:/migrations
+    entrypoint: [
+      "migrate",
+      "-path",
+      "./migrations",
+      "-database",
+      "postgres://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-pass}@postgres:5432/${POSTGRES_DB:-meeting_booking}?sslmode=disable"
+    ]
+    command: ["up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   app:
     build: .
     ports:
@@ -23,8 +42,6 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      ENV: ${ENV:-dev}
-
       HTTP_PORT: ${HTTP_PORT:-8080}
 
       POSTGRES_HOST: postgres
