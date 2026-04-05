@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pass}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -37,7 +37,7 @@ services:
   app:
     build: .
     ports:
-      - "${HTTP_PORT:-8080}:${HTTP_PORT:-8080}"
+      - "${HTTP_PORT:-8080}:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -51,11 +51,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-meeting_booking}
       POSTGRES_SSLMODE: disable
 
-      JWT_SIGN_KEY: ${JWT_SIGN_KEY:-secret}
+      JWT_SIGN_KEY: ${JWT_SIGN_KEY:-secret_key}
 
       PASSWORD_HASHER_SALT: ${PASSWORD_HASHER_SALT:-}
-    volumes:
-      - ./config:/app/config:ro
     restart: unless-stopped
 
 volumes:
